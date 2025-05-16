@@ -29,8 +29,8 @@
             "in": "query",
             "name": "complete",
             "schema": {
-              "type": "integer",
-              "enum": [ 1
+              "type": "boolean",
+              "enum": [ true , false
               ]
             },
             "description": "Filtrer les tâches par statut (1 pour complètes). Par défaut, affiche les tâches incomplètes."
