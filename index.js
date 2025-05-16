@@ -6,7 +6,7 @@ import routesAuthentification from './src/routes/routesAuthentification.js';
 import routesTache from './src/routes/routesTache.js';
 import routesSousTache from './src/routes/routesSousTache.js';
 import gestionErreurs from './src/config/gestionErreurs.js';
-
+import cors from "cors";
 import fs from 'fs';
 const swaggerDocument = JSON.parse(fs.readFileSync('./src/config/documentation.json', 'utf8'));
 const swaggerOptions = {
@@ -14,6 +14,7 @@ const swaggerOptions = {
     customSiteTitle: "Demo API"
 };
 const app = express();
+app.use(cors());
 const port = process.env.PORT || 3000;
 app.use(express.json());
 
