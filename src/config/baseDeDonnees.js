@@ -9,7 +9,7 @@ const pool = new PG.Pool({
   password: process.env.PG_PASSWORD,
   port: process.env.PG_PORT,
   ssl: {
-    rejectUnauthorized: false, // indispensable pour Render
+    rejectUnauthorized: false;
   },
 });
 export default pool;
