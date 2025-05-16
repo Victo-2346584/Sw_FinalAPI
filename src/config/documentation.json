@@ -1,0 +1,799 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Gestion de Tâches API",
+    "version": "1.0.0",
+    "description": "API pour la gestion des tâches avec support utilisateur et clé API."
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Clé API requise pour accéder à la plupart des routes. \tFormat: \"cle_api <votre_clé>\""
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "paths": {
+    "/tasks": {
+      "get": {
+        "summary": "Afficher la liste de toutes les tâches de l'usager",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "complete",
+            "schema": {
+              "type": "integer",
+              "enum": [ 1
+              ]
+            },
+            "description": "Filtrer les tâches par statut (1 pour complètes). Par défaut, affiche les tâches incomplètes."
+          }
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des tâches récupérée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "titre": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "date_debut": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "date_echeance": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "complete": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Clé API manquante ou invalide"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la récupération des tâches"
+          }
+        }
+      },
+      "post": {
+        "summary": "Ajouter une nouvelle tâche",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "titre": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "date_debut": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "date_echeance": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Tâche créée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données d'entrée invalides"
+          },
+          "401": {
+            "description": "Clé API manquante ou invalide"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la création de la tâche"
+          }
+        }
+      }
+    },
+    "/tasks/{id}": {
+      "get": {
+        "summary": "Afficher le détail d’une tâche",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche à récupérer"
+          }
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détail de la tâche récupéré avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "titre": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "date_debut": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "date_echeance": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "complete": {
+                      "type": "boolean"
+                    },
+                    "sous_taches": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "titre": {
+                            "type": "string"
+                          },
+                          "complete": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Clé API manquante ou invalide"
+          },
+          "404": {
+            "description": "Tâche non trouvée"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la récupération des détails de la tâche"
+          }
+        }
+      },
+      "put": {
+        "summary": "Modifier une tâche existante",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche à modifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "titre": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "date_debut": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "date_echeance": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tâche mise à jour avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données d'entrée invalides"
+          },
+          "401": {
+            "description": "Clé API manquante ou invalide"
+          },
+          "404": {
+            "description": "Tâche non trouvée ou non autorisée"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la mise à jour de la tâche"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Supprimer une tâche",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche à supprimer"
+          }
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tâche supprimée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Clé API manquante ou invalide"
+          },
+          "404": {
+            "description": "Tâche non trouvée ou non autorisée"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la suppression de la tâche"
+          }
+        }
+      }
+    },
+    "/tasks/{id}/status": {
+      "patch": {
+        "summary": "Modifier le statut d’une tâche",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche dont le statut doit être modifié"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "complete": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statut de la tâche mis à jour avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données d'entrée invalides"
+          },
+          "401": {
+            "description": "Clé API manquante ou invalide"
+          },
+          "404": {
+            "description": "Tâche non trouvée ou non autorisée"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la mise à jour du statut de la tâche"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Enregistrer un nouvel utilisateur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nom": {
+                    "type": "string"
+                  },
+                  "prenom": {
+                    "type": "string"
+                  },
+                  "courriel": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "motDePasse": {
+                    "type": "string",
+                    "minLength": 6
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Utilisateur créé avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "cle_api": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données d'entrée invalides"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la création de l'utilisateur"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Récupérer sa clé API ou en demander une nouvelle",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "courriel": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "motDePasse": {
+                    "type": "string"
+                  },
+                  "genererNouveau": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Clé API récupérée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cle_api": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données d'entrée invalides"
+          },
+          "401": {
+            "description": "Mot de passe incorrect"
+          },
+          "404": {
+            "description": "Utilisateur non trouvé"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la récupération de la clé API"
+          }
+        }
+      }
+    },
+    "/subtasks/{tacheId}": {
+      "post": {
+        "summary": "Ajouter une nouvelle sous-tâche à une tâche",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tacheId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche parente"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "titre": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Sous-tâche créée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données d'entrée invalides"
+          },
+          "401": {
+            "description": "Clé API manquante ou invalide"
+          },
+          "404": {
+            "description": "Tâche parente non trouvée ou non autorisée"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la création de la sous-tâche"
+          }
+        }
+      }
+    },
+    "/subtasks/{tacheId}/{sousTacheId}": {
+      "put": {
+        "summary": "Modifier une sous-tâche existante",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tacheId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche parente"
+          },
+          {
+            "in": "path",
+            "name": "sousTacheId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la sous-tâche à modifier"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "titre": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sous-tâche mise à jour avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données d'entrée invalides"
+          },
+          "401": {
+            "description": "Clé API manquante ou invalide"
+          },
+          "404": {
+            "description": "Tâche parente ou sous-tâche non trouvée ou non autorisée"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la mise à jour de la sous-tâche"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Modifier le statut d’une sous-tâche",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tacheId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche parente"
+          },
+          {
+            "in": "path",
+            "name": "sousTacheId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la sous-tâche dont le statut doit être modifié"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "complete": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statut de la sous-tâche mis à jour avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Données d'entrée invalides"
+          },
+          "401": {
+            "description": "Clé API manquante ou invalide"
+          },
+          "404": {
+            "description": "Tâche parente ou sous-tâche non trouvée ou non autorisée"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la mise à jour du statut de la sous-tâche"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Supprimer une sous-tâche",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tacheId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la tâche parente"
+          },
+          {
+            "in": "path",
+            "name": "sousTacheId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID de la sous-tâche à supprimer"
+          }
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sous-tâche supprimée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Clé API manquante ou invalide"
+          },
+          "404": {
+            "description": "Tâche parente ou sous-tâche non trouvée ou non autorisée"
+          },
+          "500": {
+            "description": "Erreur serveur lors de la suppression de la sous-tâche"
+          }
+        }
+      }
+    }
+  }
+}         
